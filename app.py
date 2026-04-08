@@ -27,7 +27,7 @@ except Exception as e:
     st.stop()
 
 # --- 2. UI CONFIGURATION ---
-st.set_page_config(page_title="CreditWise Loan Predictor", layout="wide")
+st.set_page_config(page_title="CreditWise: AI Loan Risk Intelligence System", layout="wide")
 
 # Custom CSS for rich aesthetics
 st.markdown("""
@@ -62,7 +62,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🏦 CreditWise: Loan Approval Engine")
+st.title("🏦 CreditWise: AI Loan Risk Intelligence System")
 st.markdown("### Enter applicant details to analyze approval probability.")
 
 # --- 3. INPUT FORM ---
@@ -150,11 +150,61 @@ if submit:
 
         # --- 5. DISPLAY RESULTS ---
         st.header("Results")
-        if prediction == 1:
-            st.success(f"🎊 LOAN APPROVED! Confidence: {probability:.2%}")
-            st.balloons()
+        
+        # Risk Classification
+        if probability > 0.75:
+            risk = "LOW 🟢"
+        elif probability > 0.5:
+            risk = "MEDIUM 🟡"
         else:
-            st.error(f"❌ LOAN REJECTED. Approval Probability: {probability:.2%}")
+            risk = "HIGH 🔴"
+
+        if prediction == 1:
+            st.success("🎊 Loan Approved")
+            st.balloons()
+            st.markdown(f"**📊 Risk Level:** {risk}")
+            st.markdown(f"**📈 Approval Probability:** {probability:.0%}")
+            
+            reasons = []
+            if credit_score >= 700:
+                reasons.append("High credit score ✅")
+            if dti <= 0.3:
+                reasons.append("Low DTI ratio ✅")
+            if income >= 50000:
+                reasons.append("Strong income ✅")
+            if not reasons:
+                reasons.append("Overall strong financial profile ✅")
+                
+            st.markdown("### 📌 Why Approved:")
+            for r in reasons:
+                st.markdown(f"- {r}")
+                
+            st.markdown("### 📌 Recommendation:")
+            st.markdown("- Offer premium loan plans")
+            st.markdown("- Consider cross-selling wealth management products")
+        else:
+            st.error("❌ Loan Rejected")
+            st.markdown(f"**📊 Risk Level:** {risk}")
+            st.markdown(f"**📈 Approval Probability:** {probability:.0%}")
+            
+            reasons = []
+            if dti > 0.4:
+                reasons.append("High Debt-to-Income ratio ⚠️")
+            if credit_score < 600:
+                reasons.append("Low credit score ❌")
+            if income < 30000:
+                reasons.append("Low income ❌")
+            if not reasons:
+                reasons.append("High overall risk model assessment ⚠️")
+                
+            st.markdown("### 📌 Why this decision?")
+            for r in reasons:
+                st.markdown(f"- {r}")
+                
+            st.markdown("### 📌 Recommended Action:")
+            st.markdown("- Reduce loan amount")
+            st.markdown("- Increase collateral")
+            st.markdown("- Improve credit score")
         
         # --- 6. DEBUG SECTION (See why it's rejecting) ---
         with st.expander("🔍 View Technical Debug Info"):
