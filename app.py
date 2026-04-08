@@ -71,11 +71,11 @@ with st.form("prediction_form"):
     
     with col1:
         st.subheader("Financials")
-        income = st.number_input("Applicant Income ($)", value=50000)
-        co_income = st.number_input("Co-applicant Income ($)", value=20000)
-        loan_amount = st.number_input("Loan Amount ($)", value=15000)
-        savings = st.number_input("Savings ($)", value=10000)
-        collateral = st.number_input("Collateral Value ($)", value=20000)
+        income = st.number_input("Applicant Income ($)", min_value=0, value=50000, step=1000)
+        co_income = st.number_input("Co-applicant Income ($)", min_value=0, value=20000, step=1000)
+        loan_amount = st.number_input("Loan Amount ($)", min_value=500, value=15000, step=500)
+        savings = st.number_input("Savings ($)", min_value=0, value=10000, step=500)
+        collateral = st.number_input("Collateral Value ($)", min_value=0, value=20000, step=1000)
 
     with col2:
         st.subheader("Credit & History")
