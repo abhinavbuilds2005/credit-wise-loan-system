@@ -1,144 +1,134 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
-from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegression
+import joblib
+import os
 
-# Page Configuration
-st.set_page_config(page_title="CreditWise - Loan Approval Predictor", layout="centered")
+# --- 1. SETUP PATHS & LOAD ASSETS ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-@st.cache_resource
-def load_and_train_model():
-    # Load dataset
-    df = pd.read_csv("loan_approval_data.csv")
-    
-    # 1. Preprocessing (Same as notebook)
-    categorical_cols = df.select_dtypes(include=["object"]).columns
-    numerical_cols = df.select_dtypes(include=["number"]).columns
-    
-    # Impute missing values
-    num_imp = SimpleImputer(strategy="mean")
-    df[numerical_cols] = num_imp.fit_transform(df[numerical_cols])
-    cat_imp = SimpleImputer(strategy="most_frequent")
-    df[categorical_cols] = cat_imp.fit_transform(df[categorical_cols])
-    
-    # Drop ID
-    if "Applicant_ID" in df.columns:
-        df = df.drop("Applicant_ID", axis=1)
-    
-    # Label Encoding for Education Level and Target
-    le_edu = LabelEncoder()
-    df["Education_Level"] = le_edu.fit_transform(df["Education_Level"])
-    
-    le_target = LabelEncoder()
-    df["Loan_Approved"] = le_target.fit_transform(df["Loan_Approved"])
-    
-    # Feature Engineering (Square DTI and Credit Score)
-    df["DTI_Ratio_sq"] = df["DTI_Ratio"] ** 2
-    df["Credit_Score_sq"] = df["Credit_Score"] ** 2
-    
-    # Drop original columns before OHE to match notebook logic
-    X_raw = df.drop(columns=["Loan_Approved", "Credit_Score", "DTI_Ratio"])
-    y = df["Loan_Approved"]
-    
-    # One-Hot Encoding
-    ohe_cols = ["Employment_Status", "Marital_Status", "Loan_Purpose", "Property_Area", "Gender", "Employer_Category"]
-    ohe = OneHotEncoder(drop="first", sparse_output=False, handle_unknown="ignore")
-    encoded = ohe.fit_transform(X_raw[ohe_cols])
-    encoded_df = pd.DataFrame(encoded, columns=ohe.get_feature_names_out(ohe_cols), index=X_raw.index)
-    
-    X_final = pd.concat([X_raw.drop(columns=ohe_cols), encoded_df], axis=1)
-    
-    # Scaling
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_final)
-    
-    # Train Logistic Regression (Best performing baseline in notebook)
-    model = LogisticRegression()
-    model.fit(X_scaled, y)
-    
-    return model, scaler, ohe, le_edu, X_final.columns
+def load_asset(file_name):
+    path = os.path.join(BASE_DIR, file_name)
+    if not os.path.exists(path):
+        st.error(f"Missing File: {file_name}. Please ensure it is in the same folder as app.py")
+        st.stop()
+    return joblib.load(path)
 
-# Load resources
-model, scaler, ohe, le_edu, feature_columns = load_and_train_model()
+# Load the 4 'Brain' components saved from your notebook
+try:
+    model = load_asset('loan_model.pkl')
+    scaler = load_asset('scaler.pkl')
+    ohe = load_asset('encoder.pkl')
+    le_edu = load_asset('edu_encoder.pkl')
+    # Get the exact features and order the scaler expects
+    EXPECTED_FEATURES = list(scaler.feature_names_in_)
+except Exception as e:
+    st.error(f"Error loading model files: {e}")
+    st.stop()
 
-# --- UI Header ---
-st.title("🏦 CreditWise: Loan Approval Predictor")
-st.markdown("Enter the applicant details below to check loan eligibility.")
+# --- 2. UI CONFIGURATION ---
+st.set_page_config(page_title="CreditWise Loan Predictor", layout="wide")
+st.title("🏦 CreditWise: Loan Approval Engine")
+st.markdown("### Enter applicant details to analyze approval probability.")
 
-# --- Form Inputs ---
+# --- 3. INPUT FORM ---
 with st.form("prediction_form"):
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
-        income = st.number_input("Applicant Income ($)", min_value=0.0, value=5000.0)
-        co_income = st.number_input("Co-applicant Income ($)", min_value=0.0, value=0.0)
-        credit_score = st.slider("Credit Score", 300, 850, 650)
-        loan_amount = st.number_input("Loan Amount Requested ($)", min_value=0.0, value=20000.0)
-        loan_term = st.selectbox("Loan Term (Months)", [12, 24, 36, 48, 60, 72, 84])
+        st.subheader("Financials")
+        income = st.number_input("Applicant Income ($)", value=50000)
+        co_income = st.number_input("Co-applicant Income ($)", value=20000)
+        loan_amount = st.number_input("Loan Amount ($)", value=15000)
+        savings = st.number_input("Savings ($)", value=10000)
+        collateral = st.number_input("Collateral Value ($)", value=20000)
+
+    with col2:
+        st.subheader("Credit & History")
+        credit_score = st.slider("Credit Score", 300, 850, 750)
+        dti = st.slider("DTI Ratio", 0.0, 1.0, 0.2)
+        loan_term = st.selectbox("Term (Months)", [12, 24, 36, 48, 60, 72, 84])
+        dependents = st.number_input("Dependents", 0, 10, 0)
+        age = st.number_input("Age", 18, 100, 35)
+
+    with col3:
+        st.subheader("Personal Info")
         gender = st.selectbox("Gender", ["Male", "Female"])
         marital = st.selectbox("Marital Status", ["Married", "Single"])
-    
-    with col2:
-        age = st.number_input("Age", 18, 100, 30)
-        dependents = st.number_input("Number of Dependents", 0, 10, 0)
-        dti = st.slider("DTI Ratio (Debt-to-Income)", 0.0, 1.0, 0.3)
-        savings = st.number_input("Savings Balance ($)", min_value=0.0, value=1000.0)
-        collateral = st.number_input("Collateral Value ($)", min_value=0.0, value=5000.0)
-        employment = st.selectbox("Employment Status", ["Salaried", "Self-employed", "Contract", "Unemployed"])
+        employment = st.selectbox("Employment", ["Salaried", "Self-employed", "Contract", "Unemployed"])
+        education = st.selectbox("Education", ["Graduate", "Not Graduate"])
         property_area = st.selectbox("Property Area", ["Urban", "Semiurban", "Rural"])
+        purpose = st.selectbox("Purpose", ["Personal", "Car", "Business", "Home", "Education"])
+        employer = st.selectbox("Employer Type", ["Private", "Government", "Unemployed", "MNC", "Business"])
 
-    purpose = st.selectbox("Loan Purpose", ["Personal", "Car", "Business", "Home", "Education"])
-    education = st.selectbox("Education Level", ["Graduate", "Not Graduate"])
-    employer = st.selectbox("Employer Category", ["Private", "Government", "Unemployed", "MNC", "Business"])
+    st.markdown("---")
+    submit = st.form_submit_button("🚀 RUN RISK ANALYSIS")
 
-    submit = st.form_submit_button("Predict Approval Status")
-
-# --- Logic ---
+# --- 4. PREDICTION LOGIC ---
 if submit:
-    # Prepare Input Data
-    input_data = pd.DataFrame([{
-        "Applicant_Income": income,
-        "Coapplicant_Income": co_income,
-        "Age": age,
-        "Dependents": dependents,
-        "Existing_Loans": 1, # Default value for simulation
-        "Savings": savings,
-        "Collateral_Value": collateral,
-        "Loan_Amount": loan_amount,
-        "Loan_Term": loan_term,
-        "Education_Level": le_edu.transform([education])[0],
-        "Employment_Status": employment,
-        "Marital_Status": marital,
-        "Loan_Purpose": purpose,
-        "Property_Area": property_area,
-        "Gender": gender,
-        "Employer_Category": employer,
-        "DTI_Ratio_sq": dti ** 2,
-        "Credit_Score_sq": credit_score ** 2
-    }])
+    try:
+        # Create initial DataFrame from inputs
+        input_dict = {
+            "Applicant_Income": income,
+            "Coapplicant_Income": co_income,
+            "Age": age,
+            "Dependents": dependents,
+            "Existing_Loans": 1, 
+            "Savings": savings,
+            "Collateral_Value": collateral,
+            "Loan_Amount": loan_amount,
+            "Loan_Term": loan_term,
+            "DTI_Ratio": dti,
+            "Credit_Score": credit_score,
+            "Education_Level": education,
+            "Employment_Status": employment,
+            "Marital_Status": marital,
+            "Loan_Purpose": purpose,
+            "Property_Area": property_area,
+            "Gender": gender,
+            "Employer_Category": employer
+        }
+        df = pd.DataFrame([input_dict])
 
-    # One-Hot Encode User Input
-    ohe_cols = ["Employment_Status", "Marital_Status", "Loan_Purpose", "Property_Area", "Gender", "Employer_Category"]
-    encoded_input = ohe.transform(input_data[ohe_cols])
-    encoded_input_df = pd.DataFrame(encoded_input, columns=ohe.get_feature_names_out(ohe_cols), index=input_data.index)
-    
-    final_input = pd.concat([input_data.drop(columns=ohe_cols), encoded_input_df], axis=1)
-    
-    # Ensure column order matches training data
-    final_input = final_input[feature_columns]
-    
-    # Scale and Predict
-    scaled_input = scaler.transform(final_input)
-    prediction = model.predict(scaled_input)[0]
-    probability = model.predict_proba(scaled_input)[0][1]
+        # A. Feature Engineering (The Squares)
+        df["DTI_Ratio_sq"] = df["DTI_Ratio"] ** 2
+        df["Credit_Score_sq"] = df["Credit_Score"] ** 2
+        
+        # B. Label Encoding (Education)
+        df["Education_Level"] = le_edu.transform(df["Education_Level"])
+        
+        # C. One-Hot Encoding (Categorical columns)
+        ohe_cols = ["Employment_Status", "Marital_Status", "Loan_Purpose", "Property_Area", "Gender", "Employer_Category"]
+        encoded_array = ohe.transform(df[ohe_cols])
+        encoded_df = pd.DataFrame(encoded_array, columns=ohe.get_feature_names_out(ohe_cols), index=df.index)
+        
+        # D. Assembly
+        # Combine numerical with encoded, dropping original categoricals and non-squared base columns if needed
+        final_df = pd.concat([df.drop(columns=ohe_cols), encoded_df], axis=1)
+        
+        # E. Force EXACT Column Order (Fixes the "Feature Names" Error)
+        final_df = final_df.reindex(columns=EXPECTED_FEATURES, fill_value=0)
+        
+        # F. Scaling & Prediction
+        scaled_input = scaler.transform(final_df)
+        prediction = model.predict(scaled_input)[0]
+        probability = model.predict_proba(scaled_input)[0][1]
 
-    # Display Result
-    st.divider()
-    if prediction == 1:
-        st.success(f"🎉 Loan Approved! (Probability: {probability:.2%})")
-        st.balloons()
-    else:
-        st.error(f"❌ Loan Rejected (Approval Probability: {probability:.2%})")
+        # --- 5. DISPLAY RESULTS ---
+        st.header("Results")
+        if prediction == 1:
+            st.success(f"🎊 LOAN APPROVED! Confidence: {probability:.2%}")
+            st.balloons()
+        else:
+            st.error(f"❌ LOAN REJECTED. Approval Probability: {probability:.2%}")
+        
+        # --- 6. DEBUG SECTION (See why it's rejecting) ---
+        with st.expander("🔍 View Technical Debug Info"):
+            st.write("Raw Probability Score:", probability)
+            st.write("Model Type Loaded:", type(model).__name__)
+            st.write("Processed Data (First 5 columns):", final_df.iloc[:, :5])
+            st.write("Column Count Check:", f"Model expects {len(EXPECTED_FEATURES)}, App sent {final_df.shape[1]}")
+
+    except Exception as e:
+        st.error(f"Logic Error: {e}")
+        st.info("Ensure the variable names in your Notebook export (joblib.dump) match the inputs here.")
