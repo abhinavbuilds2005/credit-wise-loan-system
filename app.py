@@ -28,6 +28,40 @@ except Exception as e:
 
 # --- 2. UI CONFIGURATION ---
 st.set_page_config(page_title="CreditWise Loan Predictor", layout="wide")
+
+# Custom CSS for rich aesthetics
+st.markdown("""
+    <style>
+    .main {
+        background-color: #0d1117;
+        color: #c9d1d9;
+    }
+    h1, h2, h3 {
+        color: #58a6ff;
+        font-family: 'Inter', sans-serif;
+    }
+    .stButton>button {
+        background-color: #238636;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 24px;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #2ea043;
+        transform: scale(1.05);
+    }
+    .metric-card {
+        background: linear-gradient(145deg, #1f2428, #24292e);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 5px 5px 10px #080a0f, -5px -5px 10px #121825;
+        text-align: center;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("🏦 CreditWise: Loan Approval Engine")
 st.markdown("### Enter applicant details to analyze approval probability.")
 
