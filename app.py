@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
+import time
 from datetime import datetime
 import plotly.graph_objects as go
 import plotly.express as px
@@ -453,6 +454,7 @@ with st.form("prediction_form", clear_on_submit=False):
 # --- 6. PREDICTION LOGIC ---
 if submit:
     with st.spinner("🔄 Processing application..."):
+        time.sleep(1.5)  # Simulate processing delay for realistic UX
         try:
             # Create initial DataFrame from inputs
             input_dict = {
