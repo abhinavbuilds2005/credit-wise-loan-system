@@ -32,7 +32,7 @@ except Exception as e:
 
 # --- 2. PAGE CONFIG & CUSTOM CSS ---
 st.set_page_config(
-    page_title="CreditWise - AI Loan Approval System",
+    page_title="CrediShield AI - AI Loan Approval System",
     page_icon="🏦",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -234,7 +234,7 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     st.markdown("""
     <div style="text-align: center; padding: 20px 0;">
-        <h1 style="margin: 0; font-size: 3em;">🏦 CreditWise</h1>
+        <h1 style="margin: 0; font-size: 3em;">🏦 CrediShield AI</h1>
         <p style="font-size: 1.3em; color: #64748b; margin: 5px 0;">AI-Powered Loan Approval Intelligence System</p>
         <p style="color: #94a3b8; font-size: 0.95em;">Intelligent risk assessment powered by machine learning</p>
     </div>
@@ -244,7 +244,7 @@ st.markdown("---")
 
 # --- 4. SIDEBAR INFO ---
 with st.sidebar:
-    st.markdown("### 📋 About CreditWise")
+    st.markdown("### 📋 About CrediShield AI")
     st.info("""
     **Features:**
     - 🤖 AI-powered risk assessment
@@ -806,7 +806,7 @@ if submit:
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; padding: 20px; color: #64748b; font-size: 0.9em;">
-    <p>🏦 <strong>CreditWise</strong> - Intelligent Loan Approval System</p>
+    <p>🏦 <strong>CrediShield AI</strong> - Intelligent Loan Approval System</p>
     <p>Powered by Machine Learning | Logistic Regression Model</p>
     <p style="font-size: 0.85em; margin-top: 10px;">Disclaimer: This system is for demonstration purposes. Always conduct thorough due diligence.</p>
 </div>

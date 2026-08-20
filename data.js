@@ -1,4 +1,4 @@
-// CreditWise AI Model Parameters and Dataset Summaries
+// CrediShield AI Model Parameters and Dataset Summaries
 const MODEL_PARAMETERS = {
   "coef": [
     0.47593970734821656,

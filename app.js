@@ -1,4 +1,4 @@
-// CreditWise Application Logic & ML Prediction Engine
+// CrediShield Application Logic & ML Prediction Engine
 
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Tab Navigation Routing

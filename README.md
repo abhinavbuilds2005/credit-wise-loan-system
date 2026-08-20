@@ -1,4 +1,4 @@
-CreditWise | Loan Approval Engine
+CrediShield AI | Loan Approval Engine
 A production-ready implementation of a binary classification model to predict loan eligibility. This project transitions from a research-oriented Jupyter Notebook to a deployed Streamlit web interface, utilizing a Scikit-Learn pipeline for real-time inference.
 
 🛠 Tech Stack
