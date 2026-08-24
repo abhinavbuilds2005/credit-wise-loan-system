@@ -1,261 +1,317 @@
-// CrediShield Application Logic & ML Prediction Engine
+// CrediShield AI - Underwriting Intelligence & Prediction Logic
 
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Tab Navigation Routing
-    const navDashboard = document.getElementById("nav-dashboard");
-    const navPredict = document.getElementById("nav-predict");
-    const dashboardTab = document.getElementById("dashboard-tab");
-    const predictTab = document.getElementById("predict-tab");
+    const tabs = [
+        { btn: document.getElementById("nav-dashboard"), pane: document.getElementById("tab-dashboard"), title: "Dashboard Insights", desc: "Real-time macro portfolio analytics, historical loan distributions, and live risk metrics." },
+        { btn: document.getElementById("nav-predict"), pane: document.getElementById("tab-predict"), title: "Live AI Underwriting Predictor", desc: "Execute live machine learning predictions, stress-testing, and dynamic risk explainability." },
+        { btn: document.getElementById("nav-portfolio"), pane: document.getElementById("tab-portfolio"), title: "Portfolio Analytics", desc: "Risk-adjusted portfolio segmentation across loan tenures, credit rating distributions, and asset tiers." },
+        { btn: document.getElementById("nav-explainer"), pane: document.getElementById("tab-explainer"), title: "Model Explainer & Architecture", desc: "Underwriting engine specifications, validation metrics, and feature sensitivity weights." }
+    ];
+
     const pageTitle = document.getElementById("page-title");
     const pageDescription = document.getElementById("page-description");
 
-    function switchTab(activeBtn, activeTab, titleText, descText) {
-        document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
-        document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
-        
-        activeBtn.classList.add("active");
-        activeTab.classList.add("active");
-        pageTitle.innerText = titleText;
-        pageDescription.innerText = descText;
-    }
-
-    navDashboard.addEventListener("click", () => {
-        switchTab(
-            navDashboard, 
-            dashboardTab, 
-            "📊 Dashboard Insights", 
-            "Interactive metrics, historical distributions, and model performance charts for loan applications."
-        );
-    });
-
-    navPredict.addEventListener("click", () => {
-        switchTab(
-            navPredict, 
-            predictTab, 
-            "🔮 Predict Loan Approval", 
-            "Execute live machine learning predictions and risk assessments on unique applicant profiles."
-        );
+    tabs.forEach(tab => {
+        if (tab.btn && tab.pane) {
+            tab.btn.addEventListener("click", () => {
+                tabs.forEach(t => {
+                    if (t.btn) t.btn.classList.remove("active");
+                    if (t.pane) t.pane.classList.remove("active");
+                });
+                tab.btn.classList.add("active");
+                tab.pane.classList.add("active");
+                if (pageTitle) pageTitle.innerText = tab.title;
+                if (pageDescription) pageDescription.innerText = tab.desc;
+            });
+        }
     });
 
     // 2. Form Sliders Live Sync
     const creditScoreInput = document.getElementById("credit_score");
     const creditScoreVal = document.getElementById("credit_score_val");
-    creditScoreInput.addEventListener("input", (e) => {
-        const val = e.target.value;
-        creditScoreVal.innerText = val;
-    });
+    if (creditScoreInput && creditScoreVal) {
+        creditScoreInput.addEventListener("input", (e) => {
+            creditScoreVal.innerText = e.target.value;
+        });
+    }
 
     const dtiRatioInput = document.getElementById("dti_ratio");
     const dtiRatioVal = document.getElementById("dti_ratio_val");
-    dtiRatioInput.addEventListener("input", (e) => {
-        const val = Math.round(e.target.value * 100);
-        dtiRatioVal.innerText = val + "%";
+    if (dtiRatioInput && dtiRatioVal) {
+        dtiRatioInput.addEventListener("input", (e) => {
+            const val = Math.round(e.target.value * 100);
+            dtiRatioVal.innerText = val + "%";
+        });
+    }
+
+    // 3. Prevent mouse wheel from accidentally changing number inputs while scrolling
+    document.querySelectorAll('input[type="number"]').forEach(numInput => {
+        numInput.addEventListener("wheel", (e) => {
+            e.target.blur();
+        }, { passive: true });
     });
 
-    // 3. Initialize Dashboard Charts and stats
+    // 4. Quick Sample Ingestion Fill Button
+    const quickFillBtn = document.getElementById("quick-fill-btn");
+    if (quickFillBtn) {
+        quickFillBtn.addEventListener("click", () => {
+            // Switch to predict tab
+            const predictBtn = document.getElementById("nav-predict");
+            if (predictBtn) predictBtn.click();
+
+            // Set sample values
+            document.getElementById("applicant_income").value = 85000;
+            document.getElementById("coapplicant_income").value = 30000;
+            document.getElementById("loan_amount").value = 28000;
+            document.getElementById("loan_term").value = "36";
+            document.getElementById("savings").value = 18000;
+            document.getElementById("collateral").value = 45000;
+            document.getElementById("credit_score").value = 780;
+            document.getElementById("credit_score_val").innerText = "780";
+            document.getElementById("dti_ratio").value = 0.22;
+            document.getElementById("dti_ratio_val").innerText = "22%";
+            document.getElementById("existing_loans").value = 0;
+            document.getElementById("age").value = 38;
+            document.getElementById("dependents").value = 1;
+            document.getElementById("education").value = "Graduate";
+            document.getElementById("employment_status").value = "Salaried";
+            document.getElementById("employer_category").value = "MNC";
+            document.getElementById("property_area").value = "Semiurban";
+            document.getElementById("loan_purpose").value = "Home";
+
+            // Trigger prediction
+            executePrediction();
+        });
+    }
+
+    // 5. Initialize Dashboard Charts
     initDashboard();
 
-    // 4. Handle Application Form Submission
+    // 6. Handle Form Submission
     const form = document.getElementById("prediction-form");
-    form.addEventListener("submit", handleFormSubmit);
+    if (form) {
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            executePrediction();
+        });
+    }
+
+    // Initial default assessment run on load
+    setTimeout(() => {
+        executePrediction();
+    }, 150);
 });
 
-// Store references to Chart objects to destroy them before re-rendering
-let gaugeChartObj = null;
-let barChartObj = null;
+// Chart.js Global Reference
+let financialChartObj = null;
 
 // Dashboard initialization
 function initDashboard() {
     if (typeof DATASET_SUMMARY === "undefined") {
-        console.error("DATASET_SUMMARY is not defined. Ensure data.js loaded successfully.");
+        console.warn("DATASET_SUMMARY is not defined. Checking data.js...");
         return;
     }
     
     const ds = DATASET_SUMMARY;
 
     // Set KPI figures
-    document.getElementById("kpi-total").innerText = ds.total_applicants.toLocaleString();
-    document.getElementById("kpi-approved").innerText = ds.approved_applicants.toLocaleString();
-    document.getElementById("kpi-rejected").innerText = ds.rejected_applicants.toLocaleString();
-    document.getElementById("kpi-rate").innerText = (ds.approval_rate * 100).toFixed(1) + "%";
+    const kpiTotal = document.getElementById("kpi-total");
+    const kpiApproved = document.getElementById("kpi-approved");
+    const kpiRejected = document.getElementById("kpi-rejected");
+    const kpiRate = document.getElementById("kpi-rate");
+
+    if (kpiTotal) kpiTotal.innerText = ds.total_applicants.toLocaleString();
+    if (kpiApproved) kpiApproved.innerText = ds.approved_applicants.toLocaleString();
+    if (kpiRejected) kpiRejected.innerText = ds.rejected_applicants.toLocaleString();
+    if (kpiRate) kpiRate.innerText = (ds.approval_rate * 100).toFixed(1) + "%";
 
     // Charts Global Font Configuration
     Chart.defaults.color = "#94a3b8";
     Chart.defaults.font.family = "'Inter', sans-serif";
 
     // Chart 1: Scatter Plot (Credit Score vs Income)
-    const ctxScatter = document.getElementById("scatterChart").getContext("2d");
-    
-    const approvedPoints = ds.scatter_data.filter(p => p.approved === 1).map(p => ({ x: p.credit_score, y: p.income }));
-    const rejectedPoints = ds.scatter_data.filter(p => p.approved === 0).map(p => ({ x: p.credit_score, y: p.income }));
+    const scatterCanvas = document.getElementById("scatterChart");
+    if (scatterCanvas) {
+        const ctxScatter = scatterCanvas.getContext("2d");
+        const approvedPoints = ds.scatter_data.filter(p => p.approved === 1).map(p => ({ x: p.credit_score, y: p.income }));
+        const rejectedPoints = ds.scatter_data.filter(p => p.approved === 0).map(p => ({ x: p.credit_score, y: p.income }));
 
-    new Chart(ctxScatter, {
-        type: 'scatter',
-        data: {
-            datasets: [
-                {
-                    label: 'Approved ✅',
-                    data: approvedPoints,
-                    backgroundColor: 'rgba(34, 197, 94, 0.65)',
-                    borderColor: '#22c55e',
-                    borderWidth: 1,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                },
-                {
-                    label: 'Under Review / Rejected ❌',
-                    data: rejectedPoints,
-                    backgroundColor: 'rgba(239, 68, 68, 0.65)',
-                    borderColor: '#ef4444',
-                    borderWidth: 1,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    title: { display: true, text: 'Credit Score', color: '#fff', font: { weight: '600' } },
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    min: 300,
-                    max: 850
-                },
-                y: {
-                    title: { display: true, text: 'Applicant Income ($)', color: '#fff', font: { weight: '600' } },
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                }
+        new Chart(ctxScatter, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Approved ✅',
+                        data: approvedPoints,
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#10b981',
+                        borderWidth: 1,
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'Under Review / High Risk ❌',
+                        data: rejectedPoints,
+                        backgroundColor: 'rgba(244, 63, 94, 0.75)',
+                        borderColor: '#f43f5e',
+                        borderWidth: 1,
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    }
+                ]
             },
-            plugins: {
-                legend: { position: 'top', labels: { boxWidth: 12, font: { weight: '600' }, color: '#fff' } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Credit Score', color: '#cbd5e1', font: { weight: '600' } },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        min: 300,
+                        max: 850
+                    },
+                    y: {
+                        title: { display: true, text: 'Applicant Income ($)', color: '#cbd5e1', font: { weight: '600' } },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top', labels: { boxWidth: 12, font: { weight: '600' }, color: '#e2e8f0' } }
+                }
             }
-        }
-    });
+        });
+    }
 
     // Chart 2: Credit Bracket Approval Success
-    const ctxCredit = document.getElementById("creditBracketChart").getContext("2d");
-    new Chart(ctxCredit, {
-        type: 'bar',
-        data: {
-            labels: ds.credit_bracket_stats.map(d => d.bracket),
-            datasets: [{
-                label: 'Approval Rate (%)',
-                data: ds.credit_bracket_stats.map(d => d.approval_rate * 100),
-                backgroundColor: 'rgba(56, 189, 248, 0.75)',
-                borderColor: '#38bdf8',
-                borderWidth: 1,
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { min: 0, max: 100, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
-                x: { grid: { display: false } }
+    const creditCanvas = document.getElementById("creditBracketChart");
+    if (creditCanvas) {
+        const ctxCredit = creditCanvas.getContext("2d");
+        new Chart(ctxCredit, {
+            type: 'bar',
+            data: {
+                labels: ds.credit_bracket_stats.map(d => d.bracket),
+                datasets: [{
+                    label: 'Approval Rate (%)',
+                    data: ds.credit_bracket_stats.map(d => (d.approval_rate * 100).toFixed(1)),
+                    backgroundColor: 'rgba(0, 240, 255, 0.75)',
+                    borderColor: '#00f0ff',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
             },
-            plugins: {
-                legend: { display: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { min: 0, max: 100, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
             }
-        }
-    });
+        });
+    }
 
     // Chart 3: Loan Purpose Success Rates
-    const ctxPurpose = document.getElementById("purposeChart").getContext("2d");
-    new Chart(ctxPurpose, {
-        type: 'bar',
-        data: {
-            labels: ds.purpose_stats.map(d => d.purpose),
-            datasets: [{
-                label: 'Approval Rate (%)',
-                data: ds.purpose_stats.map(d => d.approval_rate * 100),
-                backgroundColor: 'rgba(129, 140, 248, 0.75)',
-                borderColor: '#818cf8',
-                borderWidth: 1,
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y',
-            scales: {
-                x: { min: 0, max: 100, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
-                y: { grid: { display: false } }
+    const purposeCanvas = document.getElementById("purposeChart");
+    if (purposeCanvas) {
+        const ctxPurpose = purposeCanvas.getContext("2d");
+        new Chart(ctxPurpose, {
+            type: 'bar',
+            data: {
+                labels: ds.purpose_stats.map(d => d.purpose),
+                datasets: [{
+                    label: 'Approval Rate (%)',
+                    data: ds.purpose_stats.map(d => (d.approval_rate * 100).toFixed(1)),
+                    backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                    borderColor: '#6366f1',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
             },
-            plugins: {
-                legend: { display: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: { min: 0, max: 100, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    y: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
             }
-        }
-    });
+        });
+    }
 
     // Chart 4: Property Area Distribution
-    const ctxProperty = document.getElementById("propertyChart").getContext("2d");
-    new Chart(ctxProperty, {
-        type: 'doughnut',
-        data: {
-            labels: ds.property_stats.map(d => d.area),
-            datasets: [{
-                data: ds.property_stats.map(d => d.count),
-                backgroundColor: [
-                    'rgba(56, 189, 248, 0.75)',  // Semiurban
-                    'rgba(245, 158, 11, 0.75)',   // Urban
-                    'rgba(239, 68, 68, 0.75)'    // Rural
-                ],
-                borderColor: '#0f172a',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'right', labels: { boxWidth: 12, color: '#fff' } }
+    const propertyCanvas = document.getElementById("propertyChart");
+    if (propertyCanvas) {
+        const ctxProperty = propertyCanvas.getContext("2d");
+        new Chart(ctxProperty, {
+            type: 'doughnut',
+            data: {
+                labels: ds.property_stats.map(d => d.area),
+                datasets: [{
+                    data: ds.property_stats.map(d => d.count),
+                    backgroundColor: [
+                        'rgba(0, 240, 255, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(244, 63, 94, 0.8)'
+                    ],
+                    borderColor: '#050d1a',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 12, color: '#e2e8f0' } }
+                }
             }
-        }
-    });
+        });
+    }
 }
 
-// Form prediction handling
-function handleFormSubmit(e) {
-    e.preventDefault();
-
+// Prediction Execution Logic
+function executePrediction() {
     if (typeof MODEL_PARAMETERS === "undefined") {
-        alert("ML parameters not loaded. Please ensure data.js exists.");
+        console.error("ML parameters not loaded. Please ensure data.js exists.");
         return;
     }
 
-    // Get input values
-    const income = parseFloat(document.getElementById("applicant_income").value);
-    const coIncome = parseFloat(document.getElementById("coapplicant_income").value);
-    const loanAmount = parseFloat(document.getElementById("loan_amount").value);
-    const loanTerm = parseInt(document.getElementById("loan_term").value);
-    const savings = parseFloat(document.getElementById("savings").value);
-    const collateral = parseFloat(document.getElementById("collateral").value);
+    // Get input values safely
+    const income = parseFloat(document.getElementById("applicant_income")?.value || 50000);
+    const coIncome = parseFloat(document.getElementById("coapplicant_income")?.value || 0);
+    const loanAmount = parseFloat(document.getElementById("loan_amount")?.value || 25000);
+    const loanTerm = parseInt(document.getElementById("loan_term")?.value || 84);
+    const savings = parseFloat(document.getElementById("savings")?.value || 10000);
+    const collateral = parseFloat(document.getElementById("collateral")?.value || 30000);
     
-    const creditScore = parseInt(document.getElementById("credit_score").value);
-    const dti = parseFloat(document.getElementById("dti_ratio").value);
-    const existingLoans = parseInt(document.getElementById("existing_loans").value);
+    const creditScore = parseInt(document.getElementById("credit_score")?.value || 700);
+    const dti = parseFloat(document.getElementById("dti_ratio")?.value || 0.3);
+    const existingLoans = parseInt(document.getElementById("existing_loans")?.value || 1);
     
-    const age = parseInt(document.getElementById("age").value);
-    const dependents = parseInt(document.getElementById("dependents").value);
+    const age = parseInt(document.getElementById("age")?.value || 35);
+    const dependents = parseInt(document.getElementById("dependents")?.value || 0);
     
-    const gender = document.getElementById("gender").value;
-    const maritalStatus = document.getElementById("marital_status").value;
-    const education = document.getElementById("education").value;
-    const employmentStatus = document.getElementById("employment_status").value;
-    const employerCategory = document.getElementById("employer_category").value;
-    const propertyArea = document.getElementById("property_area").value;
-    const loanPurpose = document.getElementById("loan_purpose").value;
+    const gender = document.getElementById("gender")?.value || "Male";
+    const maritalStatus = document.getElementById("marital_status")?.value || "Single";
+    const education = document.getElementById("education")?.value || "Graduate";
+    const employmentStatus = document.getElementById("employment_status")?.value || "Salaried";
+    const employerCategory = document.getElementById("employer_category")?.value || "Private";
+    const propertyArea = document.getElementById("property_area")?.value || "Semiurban";
+    const loanPurpose = document.getElementById("loan_purpose")?.value || "Personal";
 
-    // Feature engineering (just like Python script)
+    // Feature engineering
     const dtiSq = dti ** 2;
     const creditScoreSq = creditScore ** 2;
-    const eduVal = education === "Graduate" ? 0 : 1; // le_edu: Graduate = 0, Not Graduate = 1
+    const eduVal = education === "Graduate" ? 0 : 1;
 
-    // Build raw feature mapping
+    // Feature dictionary
     const featDict = {
         "Applicant_Income": income,
         "Coapplicant_Income": coIncome,
@@ -268,32 +324,25 @@ function handleFormSubmit(e) {
         "Loan_Term": loanTerm,
         "Education_Level": eduVal,
         "DTI_Ratio_sq": dtiSq,
-        "Credit_Score_sq": creditScoreSq
+        "Credit_Score_sq": creditScoreSq,
+        "Employment_Status_Salaried": employmentStatus === "Salaried" ? 1.0 : 0.0,
+        "Employment_Status_Self-employed": employmentStatus === "Self-employed" ? 1.0 : 0.0,
+        "Employment_Status_Unemployed": employmentStatus === "Unemployed" ? 1.0 : 0.0,
+        "Marital_Status_Single": maritalStatus === "Single" ? 1.0 : 0.0,
+        "Loan_Purpose_Car": loanPurpose === "Car" ? 1.0 : 0.0,
+        "Loan_Purpose_Education": loanPurpose === "Education" ? 1.0 : 0.0,
+        "Loan_Purpose_Home": loanPurpose === "Home" ? 1.0 : 0.0,
+        "Loan_Purpose_Personal": loanPurpose === "Personal" ? 1.0 : 0.0,
+        "Property_Area_Semiurban": propertyArea === "Semiurban" ? 1.0 : 0.0,
+        "Property_Area_Urban": propertyArea === "Urban" ? 1.0 : 0.0,
+        "Gender_Male": gender === "Male" ? 1.0 : 0.0,
+        "Employer_Category_Government": employerCategory === "Government" ? 1.0 : 0.0,
+        "Employer_Category_MNC": employerCategory === "MNC" ? 1.0 : 0.0,
+        "Employer_Category_Private": employerCategory === "Private" ? 1.0 : 0.0,
+        "Employer_Category_Unemployed": employerCategory === "Unemployed" ? 1.0 : 0.0
     };
 
-    // One-Hot Encoding simulation: map true/false based on OHE columns
-    featDict["Employment_Status_Salaried"] = employmentStatus === "Salaried" ? 1.0 : 0.0;
-    featDict["Employment_Status_Self-employed"] = employmentStatus === "Self-employed" ? 1.0 : 0.0;
-    featDict["Employment_Status_Unemployed"] = employmentStatus === "Unemployed" ? 1.0 : 0.0;
-    
-    featDict["Marital_Status_Single"] = maritalStatus === "Single" ? 1.0 : 0.0;
-    
-    featDict["Loan_Purpose_Car"] = loanPurpose === "Car" ? 1.0 : 0.0;
-    featDict["Loan_Purpose_Education"] = loanPurpose === "Education" ? 1.0 : 0.0;
-    featDict["Loan_Purpose_Home"] = loanPurpose === "Home" ? 1.0 : 0.0;
-    featDict["Loan_Purpose_Personal"] = loanPurpose === "Personal" ? 1.0 : 0.0;
-    
-    featDict["Property_Area_Semiurban"] = propertyArea === "Semiurban" ? 1.0 : 0.0;
-    featDict["Property_Area_Urban"] = propertyArea === "Urban" ? 1.0 : 0.0;
-    
-    featDict["Gender_Male"] = gender === "Male" ? 1.0 : 0.0;
-    
-    featDict["Employer_Category_Government"] = employerCategory === "Government" ? 1.0 : 0.0;
-    featDict["Employer_Category_MNC"] = employerCategory === "MNC" ? 1.0 : 0.0;
-    featDict["Employer_Category_Private"] = employerCategory === "Private" ? 1.0 : 0.0;
-    featDict["Employer_Category_Unemployed"] = employerCategory === "Unemployed" ? 1.0 : 0.0;
-
-    // Assemble scaled vector
+    // Scaled vector calculation
     const expected = MODEL_PARAMETERS.expected_features;
     const mean = MODEL_PARAMETERS.scaler.mean;
     const scale = MODEL_PARAMETERS.scaler.scale;
@@ -307,126 +356,146 @@ function handleFormSubmit(e) {
         z += scaledVal * coef[i];
     }
 
-    // Sigmoid probability calculation
+    // Sigmoid probability
     const probability = 1.0 / (1.0 + Math.exp(-z));
-    const prediction = probability > 0.5 ? 1 : 0;
+    const isApproved = probability >= 0.5;
 
-    // Set Risk Level
-    let riskLevel = "HIGH";
-    let riskColorClass = "text-danger";
-    if (probability > 0.75) {
-        riskLevel = "LOW";
-        riskColorClass = "text-success";
-    } else if (probability > 0.5) {
-        riskLevel = "MEDIUM";
-        riskColorClass = "text-warning";
-    }
+    // Update UI Circular Meter
+    const meterPercent = document.getElementById("meter-percent-val");
+    const meterStroke = document.getElementById("meter-stroke");
+    const decisionBadge = document.getElementById("decision-badge");
+    const decisionText = document.getElementById("decision-text");
+    const decisionIcon = document.getElementById("decision-icon");
 
-    // Show results section
-    const resultsSec = document.getElementById("results-section");
-    resultsSec.classList.remove("hidden");
+    const pctNumber = (probability * 100).toFixed(1);
+    if (meterPercent) meterPercent.innerText = pctNumber + "%";
 
-    // Results banner
-    const banner = document.getElementById("result-status-banner");
-    const bannerTitle = document.getElementById("result-status-title");
-    const bannerDesc = document.getElementById("result-status-desc");
-
-    if (prediction === 1) {
-        banner.className = "status-banner approved";
-        bannerTitle.innerText = "✅ LOAN APPROVED";
-        bannerDesc.innerText = "Congratulations! Your application meets our credit approval criteria.";
-    } else {
-        banner.className = "status-banner review";
-        bannerTitle.innerText = "❌ APPLICATION UNDER REVIEW";
-        bannerDesc.innerText = "Your application requires further manual risk evaluation.";
-    }
-
-    // Populate Metrics Row
-    document.getElementById("res-prob").innerText = (probability * 100).toFixed(1) + "%";
-    
-    const riskBadge = document.getElementById("res-risk");
-    riskBadge.innerText = riskLevel;
-    riskBadge.className = "res-metric-value " + riskColorClass;
-    
-    document.getElementById("res-credit").innerText = creditScore;
-    document.getElementById("res-dti").innerText = Math.round(dti * 100) + "%";
-
-    // Populate Gauge Chart
-    renderGaugeChart(probability);
-
-    // Populate Financial Bar Chart
-    renderFinancialChart(income + coIncome, loanAmount, collateral, savings);
-
-    // Populate Decision Intel checklist
-    generateChecklists(prediction, creditScore, dti, income, savings, collateral, dependents, loanAmount);
-
-    // Scroll results into view
-    resultsSec.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-// Render semi-doughnut gauge chart using Chart.js
-function renderGaugeChart(prob) {
-    const ctx = document.getElementById("gaugeChart").getContext("2d");
-    
-    if (gaugeChartObj) {
-        gaugeChartObj.destroy();
-    }
-
-    const val = prob * 100;
-    let color = "#ef4444"; // high risk red
-    if (prob > 0.75) {
-        color = "#22c55e"; // low risk green
-    } else if (prob > 0.5) {
-        color = "#f59e0b"; // med risk yellow
-    }
-
-    document.getElementById("gauge-overlay-text").innerText = val.toFixed(1) + "%";
-
-    gaugeChartObj = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Probability', 'Remaining'],
-            datasets: [{
-                data: [val, 100 - val],
-                backgroundColor: [color, '#1e293b'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            rotation: -90,
-            circumference: 180,
-            cutout: '80%',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: { enabled: false }
-            }
+    // Circle Circumference for r=65 is 2 * PI * 65 ≈ 408.4
+    const circumference = 408.4;
+    const offset = circumference - (circumference * probability);
+    if (meterStroke) {
+        meterStroke.style.strokeDasharray = `${circumference}`;
+        meterStroke.style.strokeDashoffset = `${offset}`;
+        if (probability >= 0.75) {
+            meterStroke.style.stroke = "#00f0ff";
+            meterStroke.style.filter = "drop-shadow(0 0 10px rgba(0,240,255,0.6))";
+        } else if (probability >= 0.5) {
+            meterStroke.style.stroke = "#f59e0b";
+            meterStroke.style.filter = "drop-shadow(0 0 10px rgba(245,158,11,0.6))";
+        } else {
+            meterStroke.style.stroke = "#f43f5e";
+            meterStroke.style.filter = "drop-shadow(0 0 10px rgba(244,63,94,0.6))";
         }
-    });
-}
-
-// Render applicant finances summary using Chart.js
-function renderFinancialChart(totalIncome, loanAmount, collateral, savings) {
-    const ctx = document.getElementById("financialSummaryChart").getContext("2d");
-
-    if (barChartObj) {
-        barChartObj.destroy();
     }
 
-    barChartObj = new Chart(ctx, {
+    // Update Decision Badge
+    if (decisionBadge) {
+        if (probability >= 0.75) {
+            decisionBadge.className = "decision-badge approved";
+            decisionText.innerText = "APPROVED - Low Risk";
+            decisionIcon.innerText = "verified";
+        } else if (probability >= 0.5) {
+            decisionBadge.className = "decision-badge medium";
+            decisionText.innerText = "CONDITIONAL APPROVAL";
+            decisionIcon.innerText = "pending";
+        } else {
+            decisionBadge.className = "decision-badge review";
+            decisionText.innerText = "UNDER REVIEW - High Risk";
+            decisionIcon.innerText = "cancel";
+        }
+    }
+
+    // Update Factors (SHAP Drivers)
+    const factorList1 = document.getElementById("factors-list-1");
+    if (factorList1) {
+        factorList1.innerHTML = "";
+        
+        // Dynamic influence calculation
+        const creditImpact = (creditScore >= 700) ? `+${((creditScore - 600) / 10).toFixed(1)}%` : `-${((700 - creditScore) / 10).toFixed(1)}%`;
+        const creditIsPos = creditScore >= 650;
+
+        const collateralRatio = (collateral / Math.max(loanAmount, 1));
+        const collateralImpact = collateralRatio >= 1 ? `+${(collateralRatio * 10).toFixed(1)}%` : `-${((1 - collateralRatio) * 15).toFixed(1)}%`;
+        const collateralIsPos = collateralRatio >= 0.8;
+
+        const dtiImpact = dti <= 0.35 ? `+${((0.4 - dti) * 30).toFixed(1)}%` : `-${((dti - 0.35) * 45).toFixed(1)}%`;
+        const dtiIsPos = dti <= 0.35;
+
+        const factors = [
+            { name: "Credit Score Trajectory", icon: "analytics", val: creditImpact, isPos: creditIsPos },
+            { name: "Collateral Coverage", icon: "shield", val: collateralImpact, isPos: collateralIsPos },
+            { name: "DTI Debt Leverage", icon: "trending_down", val: dtiImpact, isPos: dtiIsPos }
+        ];
+
+        factors.forEach(f => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <span class="factor-name"><span class="material-symbols-outlined" style="font-size: 16px; color: ${f.isPos ? 'var(--secondary-emerald)' : 'var(--danger-rose)'};">${f.icon}</span> ${f.name}</span>
+                <span class="factor-val ${f.isPos ? 'pos' : 'neg'}">${f.val}</span>
+            `;
+            factorList1.appendChild(li);
+        });
+    }
+
+    // Update Narrative Summary
+    const underwriterNarrative = document.getElementById("underwriter-narrative");
+    const factorList2 = document.getElementById("factors-list-2");
+    if (underwriterNarrative && factorList2) {
+        factorList2.innerHTML = "";
+        if (isApproved) {
+            underwriterNarrative.innerText = `Applicant demonstrates exceptional liquidity and creditworthiness with a projected approval confidence of ${pctNumber}%.`;
+            const tips = [
+                `<strong>Leverage:</strong> Total collateral coverage is ${(collateral / loanAmount).toFixed(1)}x requested principal.`,
+                `<strong>Max Recommended:</strong> Up to $${Math.round(income * 0.6).toLocaleString()} based on debt threshold.`
+            ];
+            tips.forEach(t => {
+                const li = document.createElement("li");
+                li.style.fontSize = "12px";
+                li.innerHTML = t;
+                factorList2.appendChild(li);
+            });
+        } else {
+            underwriterNarrative.innerText = `Applicant profile requires enhanced underwriting scrutiny. Projected confidence is ${pctNumber}% due to risk concentration.`;
+            const tips = [
+                `<strong>Action:</strong> Lower loan principal or increase asset pledges to reduce debt burden.`,
+                `<strong>DTI Ratio:</strong> Target DTI ratio below 35% (currently ${Math.round(dti * 100)}%).`
+            ];
+            tips.forEach(t => {
+                const li = document.createElement("li");
+                li.style.fontSize = "12px";
+                li.innerHTML = t;
+                factorList2.appendChild(li);
+            });
+        }
+    }
+
+    // Render Financial Balance Chart
+    renderFinancialChart(income + coIncome, loanAmount, collateral, savings);
+}
+
+// Financial capacity summary bar chart
+function renderFinancialChart(totalIncome, loanAmount, collateral, savings) {
+    const canvas = document.getElementById("financialSummaryChart");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (financialChartObj) {
+        financialChartObj.destroy();
+    }
+
+    financialChartObj = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ['Total Income', 'Loan Amount', 'Collateral', 'Savings'],
             datasets: [{
                 data: [totalIncome, loanAmount, collateral, savings],
                 backgroundColor: [
-                    'rgba(56, 189, 248, 0.75)',  // Income
-                    'rgba(129, 140, 248, 0.75)', // Loan Amount
-                    'rgba(34, 197, 94, 0.75)',   // Collateral
-                    'rgba(245, 158, 11, 0.75)'   // Savings
+                    'rgba(0, 240, 255, 0.75)',
+                    'rgba(99, 102, 241, 0.75)',
+                    'rgba(16, 185, 129, 0.75)',
+                    'rgba(245, 158, 11, 0.75)'
                 ],
-                borderColor: ['#38bdf8', '#818cf8', '#22c55e', '#f59e0b'],
+                borderColor: ['#00f0ff', '#6366f1', '#10b981', '#f59e0b'],
                 borderWidth: 1,
                 borderRadius: 6
             }]
@@ -443,160 +512,4 @@ function renderFinancialChart(totalIncome, loanAmount, collateral, savings) {
             }
         }
     });
-}
-
-// Generate Positive Factors / Risk Considerations dynamically
-function generateChecklists(prediction, creditScore, dti, income, savings, collateral, dependents, loanAmount) {
-    const title1 = document.getElementById("factors-title-1");
-    const list1 = document.getElementById("factors-list-1");
-    const title2 = document.getElementById("factors-title-2");
-    const list2 = document.getElementById("factors-list-2");
-
-    list1.innerHTML = "";
-    list2.innerHTML = "";
-
-    if (prediction === 1) {
-        // Approved
-        title1.innerText = "✅ Positive Factors";
-        title1.className = "factor-header text-success";
-        list1.className = "factor-list success-list";
-
-        const positiveFactors = [];
-        if (creditScore >= 700) {
-            positiveFactors.push(`Excellent Credit Score - <strong>${creditScore}/850</strong>`);
-        } else if (creditScore >= 600) {
-            positiveFactors.push(`Good Credit Score - <strong>${creditScore}/850</strong>`);
-        }
-        
-        if (dti <= 0.3) {
-            positiveFactors.push(`Low Debt-to-Income Ratio - <strong>${Math.round(dti * 100)}%</strong>`);
-        } else if (dti <= 0.5) {
-            positiveFactors.push(`Moderate Debt-to-Income Ratio - <strong>${Math.round(dti * 100)}%</strong>`);
-        }
-
-        if (income >= 50000) {
-            positiveFactors.push(`Strong Applicant Income - <strong>$${income.toLocaleString()}</strong>`);
-        } else if (income >= 30000) {
-            positiveFactors.push(`Stable Applicant Income - <strong>$${income.toLocaleString()}</strong>`);
-        }
-
-        if (savings > loanAmount * 0.2) {
-            positiveFactors.push(`Good Savings Buffer - <strong>$${savings.toLocaleString()}</strong>`);
-        }
-
-        if (collateral >= loanAmount) {
-            positiveFactors.push(`Adequate Collateral Coverage - <strong>$${collateral.toLocaleString()}</strong>`);
-        }
-
-        if (dependents <= 2) {
-            positiveFactors.push(`Low Dependent Load - <strong>${dependents}</strong> dependents`);
-        }
-
-        if (positiveFactors.length === 0) {
-            positiveFactors.push("Overall strong applicant financial profile");
-        }
-
-        positiveFactors.forEach(fact => {
-            const li = document.createElement("li");
-            li.innerHTML = fact;
-            list1.appendChild(li);
-        });
-
-        // Risk Considerations
-        title2.innerText = "⚠️ Risk Considerations";
-        title2.className = "factor-header text-warning";
-        list2.className = "factor-list warning-list";
-
-        const considerations = [];
-        if (dti > 0.4) {
-            considerations.push(`Monitor DTI ratio - Currently high at <strong>${Math.round(dti * 100)}%</strong>`);
-        }
-        if (creditScore < 750) {
-            considerations.push(`Room to improve credit score - Currently <strong>${creditScore}/850</strong>`);
-        }
-        if (loanAmount > income * 4) {
-            considerations.push("High loan-to-income ratio detected");
-        }
-        if (savings < loanAmount * 0.1) {
-            considerations.push("Limited savings buffer compared to loan requested");
-        }
-        if (dependents > 3) {
-            considerations.push(`Multiple dependents (<strong>${dependents}</strong>) may affect monthly repayment capacity`);
-        }
-
-        if (considerations.length === 0) {
-            considerations.push("No major risk factors identified.");
-        }
-
-        considerations.forEach(cons => {
-            const li = document.createElement("li");
-            li.innerHTML = cons;
-            list2.appendChild(li);
-        });
-
-    } else {
-        // Rejected
-        title1.innerText = "⚠️ Key Risk Factors";
-        title1.className = "factor-header text-danger";
-        list1.className = "factor-list danger-list";
-
-        const riskFactors = [];
-        if (dti > 0.4) {
-            riskFactors.push(`High DTI Ratio - <strong>${Math.round(dti * 100)}%</strong> (Threshold: 40%)`);
-        }
-        if (creditScore < 600) {
-            riskFactors.push(`Low Credit Score - <strong>${creditScore}/850</strong>`);
-        }
-        if (income < 30000) {
-            riskFactors.push(`Limited Applicant Income - <strong>$${income.toLocaleString()}</strong>`);
-        }
-        if (savings < loanAmount * 0.1) {
-            riskFactors.push(`Insufficient Savings - <strong>$${savings.toLocaleString()}</strong>`);
-        }
-        if (collateral < loanAmount * 0.5) {
-            riskFactors.push(`Low Collateral Coverage - <strong>$${collateral.toLocaleString()}</strong> (Under 50%)`);
-        }
-        if (dependents > 4) {
-            riskFactors.push(`Multiple Dependents - <strong>${dependents}</strong> dependents`);
-        }
-
-        if (riskFactors.length === 0) {
-            riskFactors.push("Application requires further manual review");
-        }
-
-        riskFactors.forEach(risk => {
-            const li = document.createElement("li");
-            li.innerHTML = risk;
-            list1.appendChild(li);
-        });
-
-        // Recommended Actions
-        title2.innerText = "🔄 Recommended Actions";
-        title2.className = "factor-header text-primary";
-        list2.className = "factor-list info-list";
-
-        const actions = [];
-        if (dti > 0.5) {
-            actions.push("<strong>Reduce Debt:</strong> Focus on paying down existing active loans or credit cards.");
-        }
-        if (loanAmount > income * 3) {
-            actions.push("<strong>Lower Loan Amount:</strong> Request a lower principal amount to improve eligibility.");
-        }
-        if (creditScore < 650) {
-            actions.push("<strong>Improve Credit Score:</strong> Build credit score by making timely bill payments.");
-        }
-        if (collateral < loanAmount) {
-            actions.push("<strong>Increase Collateral:</strong> Pledge additional assets to secure the loan and mitigate risk.");
-        }
-        if (savings < loanAmount * 0.2) {
-            actions.push("<strong>Build Savings:</strong> Grow liquid reserves to establish a robust financial cushion.");
-        }
-        actions.push("<strong>Reapply</strong> after addressing key risk factors.");
-
-        actions.forEach(act => {
-            const li = document.createElement("li");
-            li.innerHTML = act;
-            list2.appendChild(li);
-        });
-    }
 }

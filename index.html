@@ -1,400 +1,658 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CrediShield AI - AI-Powered Loan Approval Intelligence System</title>
-    <!-- Google Fonts -->
+    <title>CrediShield AI - Underwriting Intelligence & Prediction Suite</title>
+    
+    <!-- Google Fonts: Outfit & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0" />
+
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom Luxury FinTech Design System -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="app-container">
+    <div class="app-layout">
         <!-- Sidebar Navigation -->
         <aside class="app-sidebar">
-            <div class="sidebar-header">
-                <div class="logo-container">
-                    <span class="logo-icon">🏦</span>
-                    <h1 class="logo-text">Credi<span>Shield</span></h1>
+            <div class="brand-section">
+                <div class="brand-logo-icon">
+                    <span class="material-symbols-outlined">shield</span>
                 </div>
-                <p class="logo-tagline">AI Loan Approval Intelligence</p>
+                <div>
+                    <h1 class="brand-title">CrediShield</h1>
+                    <p class="brand-subtitle">Underwriting Suite</p>
+                </div>
             </div>
-            
-            <nav class="sidebar-nav">
-                <button class="nav-btn active" data-tab="dashboard-tab" id="nav-dashboard">
-                    <span class="btn-icon">📊</span> Dashboard Insights
+
+            <!-- Navigation Links -->
+            <nav class="sidebar-menu">
+                <button class="nav-link active" data-tab="tab-dashboard" id="nav-dashboard">
+                    <span class="material-symbols-outlined nav-icon">dashboard</span>
+                    <span>Dashboard Insights</span>
                 </button>
-                <button class="nav-btn" data-tab="predict-tab" id="nav-predict">
-                    <span class="btn-icon">🔮</span> Predict Loan Approval
+                <button class="nav-link" data-tab="tab-predict" id="nav-predict">
+                    <span class="material-symbols-outlined nav-icon">science</span>
+                    <span>Live Predictor</span>
+                </button>
+                <button class="nav-link" data-tab="tab-portfolio" id="nav-portfolio">
+                    <span class="material-symbols-outlined nav-icon">query_stats</span>
+                    <span>Portfolio Analytics</span>
+                </button>
+                <button class="nav-link" data-tab="tab-explainer" id="nav-explainer">
+                    <span class="material-symbols-outlined nav-icon">account_tree</span>
+                    <span>Model Explainer</span>
                 </button>
             </nav>
 
-            <div class="sidebar-info-card">
-                <h3>⚙️ Engine Specifications</h3>
-                <div class="info-list">
-                    <div class="info-item">
-                        <span class="info-label">Model Type:</span>
-                        <span class="info-val">Logistic Regression</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Accuracy:</span>
-                        <span class="info-val">85%+ (Test Set)</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Status:</span>
-                        <span class="info-val status-badge">🟢 Client-Side</span>
+            <!-- Sidebar Footer Status -->
+            <div class="sidebar-footer">
+                <div class="health-status-card">
+                    <div class="status-dot"></div>
+                    <div>
+                        <div style="font-size: 12px; font-weight: 600; color: #fff;">Inference Engine</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Logistic Regression v2.4</div>
                     </div>
                 </div>
             </div>
         </aside>
 
         <!-- Main Content Area -->
-        <main class="app-main">
-            <!-- Header Banner -->
-            <header class="app-header">
-                <div class="header-info">
-                    <h2 id="page-title">📊 Dashboard Insights</h2>
-                    <p id="page-description">Interactive metrics, historical distributions, and model performance charts for loan applications.</p>
+        <div class="app-main">
+            <!-- Top App Bar -->
+            <header class="top-bar">
+                <div class="top-bar-search">
+                    <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 18px;">search</span>
+                    <input type="text" placeholder="Search applicant profiles, metrics, or models...">
                 </div>
-                <div class="header-badge">
-                    <span class="pulse-dot"></span> Live Model Active
+
+                <div class="top-bar-actions">
+                    <div class="badge-pill">
+                        <span class="status-dot"></span>
+                        <span>Model Online (85.4% Acc)</span>
+                    </div>
+
+                    <button class="icon-btn" title="Notifications">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">notifications</span>
+                    </button>
+                    <button class="icon-btn" title="System Settings">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">tune</span>
+                    </button>
+
+                    <div class="user-profile">
+                        <div style="text-align: right;">
+                            <div style="font-size: 13px; font-weight: 600; color: #fff;">Chief Underwriter</div>
+                            <div style="font-size: 11px; color: var(--primary-cyan);">Risk Ops Admin</div>
+                        </div>
+                        <div class="brand-logo-icon" style="width: 36px; height: 36px; border-radius: 50%;">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">person</span>
+                        </div>
+                    </div>
                 </div>
             </header>
 
-            <!-- Tab Content 1: Dashboard Insights -->
-            <div id="dashboard-tab" class="tab-content active">
-                <!-- KPI Section -->
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon">👥</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">Total Historical Applicants</span>
-                            <h3 class="kpi-value" id="kpi-total">-</h3>
+            <!-- Canvas View Container -->
+            <main class="canvas-content">
+                <!-- Dynamic Page Header -->
+                <div class="page-header">
+                    <h2 id="page-title">Dashboard Insights</h2>
+                    <p id="page-description">Real-time macro portfolio analytics, historical loan distributions, and live risk metrics.</p>
+                </div>
+
+                <!-- ========================================================================= -->
+                <!-- TAB 1: DASHBOARD INSIGHTS -->
+                <!-- ========================================================================= -->
+                <div id="tab-dashboard" class="tab-pane active">
+                    <!-- Executive KPI Cards -->
+                    <div class="kpi-grid">
+                        <div class="glass-card kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">Total Applications</span>
+                                <span class="material-symbols-outlined kpi-icon">description</span>
+                            </div>
+                            <div class="kpi-value" id="kpi-total">1,000</div>
+                            <span class="kpi-badge neutral">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">insights</span> Complete Dataset
+                            </span>
+                        </div>
+
+                        <div class="glass-card kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">Approved Loans</span>
+                                <span class="material-symbols-outlined kpi-icon">check_circle</span>
+                            </div>
+                            <div class="kpi-value emerald" id="kpi-approved">684</div>
+                            <span class="kpi-badge positive">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">trending_up</span> Approved Base
+                            </span>
+                        </div>
+
+                        <div class="glass-card kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">Under Review / Denied</span>
+                                <span class="material-symbols-outlined kpi-icon">cancel</span>
+                            </div>
+                            <div class="kpi-value rose" id="kpi-rejected">316</div>
+                            <span class="kpi-badge alert">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">warning</span> High Risk Filtered
+                            </span>
+                        </div>
+
+                        <div class="glass-card kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-title">System Approval Rate</span>
+                                <span class="material-symbols-outlined kpi-icon">analytics</span>
+                            </div>
+                            <div class="kpi-value cyan" id="kpi-rate">68.4%</div>
+                            <span class="kpi-badge positive">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">verified</span> AI Calibrated
+                            </span>
                         </div>
                     </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon text-success">✅</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">Approved Loans</span>
-                            <h3 class="kpi-value" id="kpi-approved">-</h3>
+
+                    <!-- 2x2 Interactive Charts Grid -->
+                    <div class="charts-grid-2x2">
+                        <!-- Chart 1: Scatter Distribution -->
+                        <div class="glass-card chart-card">
+                            <div class="chart-card-header">
+                                <h3 class="chart-card-title">🎯 Credit Score vs. Income Distribution</h3>
+                                <span class="badge-pill" style="font-size: 11px;">Scatter Simulation</span>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="scatterChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 2: Credit Bracket Approval -->
+                        <div class="glass-card chart-card">
+                            <div class="chart-card-header">
+                                <h3 class="chart-card-title">📊 Approval Rate by Credit Tier</h3>
+                                <span class="badge-pill" style="font-size: 11px;">Tier Analysis</span>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="creditBracketChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3: Loan Purpose Rates -->
+                        <div class="glass-card chart-card">
+                            <div class="chart-card-header">
+                                <h3 class="chart-card-title">💼 Approval Success by Loan Purpose</h3>
+                                <span class="badge-pill" style="font-size: 11px;">Category Stats</span>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="purposeChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 4: Property Area Breakdown -->
+                        <div class="glass-card chart-card">
+                            <div class="chart-card-header">
+                                <h3 class="chart-card-title">🏙️ Applicant Property Distribution</h3>
+                                <span class="badge-pill" style="font-size: 11px;">Demographic Share</span>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="propertyChart"></canvas>
+                            </div>
                         </div>
                     </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon text-danger">⚠️</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">Applications Under Review</span>
-                            <h3 class="kpi-value" id="kpi-rejected">-</h3>
+
+                    <!-- Recent Live Underwriting Applications Stream -->
+                    <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 class="chart-card-title">⚡ Live Underwriting Ingestion Feed</h3>
+                            <button class="badge-pill" id="quick-fill-btn" style="cursor: pointer; background: rgba(0, 240, 255, 0.15);">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">auto_fix_high</span> Load Sample to Predictor
+                            </button>
                         </div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon text-primary">📈</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">Approval Rate</span>
-                            <h3 class="kpi-value" id="kpi-rate">-</h3>
+                        <div class="table-responsive">
+                            <table class="stream-table">
+                                <thead>
+                                    <tr>
+                                        <th>Applicant ID</th>
+                                        <th>Annual Income</th>
+                                        <th>Loan Requested</th>
+                                        <th>Credit Score</th>
+                                        <th>DTI Ratio</th>
+                                        <th>Purpose</th>
+                                        <th>Model Decision</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-mono">#CS-9804</td>
+                                        <td>$85,000</td>
+                                        <td>$28,000</td>
+                                        <td><strong style="color: var(--secondary-emerald);">780</strong></td>
+                                        <td>22%</td>
+                                        <td>Home</td>
+                                        <td><span class="status-tag approved"><span class="material-symbols-outlined" style="font-size: 12px;">check</span> Approved (94%)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-mono">#CS-9805</td>
+                                        <td>$42,000</td>
+                                        <td>$55,000</td>
+                                        <td><strong style="color: var(--danger-rose);">540</strong></td>
+                                        <td>52%</td>
+                                        <td>Personal</td>
+                                        <td><span class="status-tag rejected"><span class="material-symbols-outlined" style="font-size: 12px;">close</span> High Risk (18%)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-mono">#CS-9806</td>
+                                        <td>$110,000</td>
+                                        <td>$35,000</td>
+                                        <td><strong style="color: var(--secondary-emerald);">725</strong></td>
+                                        <td>28%</td>
+                                        <td>Car</td>
+                                        <td><span class="status-tag approved"><span class="material-symbols-outlined" style="font-size: 12px;">check</span> Approved (88%)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-mono">#CS-9807</td>
+                                        <td>$62,000</td>
+                                        <td>$20,000</td>
+                                        <td><strong style="color: var(--warning-amber);">645</strong></td>
+                                        <td>35%</td>
+                                        <td>Education</td>
+                                        <td><span class="status-tag approved"><span class="material-symbols-outlined" style="font-size: 12px;">check</span> Approved (72%)</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Interactive Charts Section -->
-                <div class="chart-layout-grid">
-                    <!-- Scatter Plot Card -->
-                    <div class="chart-card span-2">
-                        <h3>🔍 Credit Score vs. Income Distribution</h3>
-                        <p class="chart-subtitle">Scatter mapping of applicant credit scores, annual incomes, and approval decisions.</p>
-                        <div class="chart-wrapper">
-                            <canvas id="scatterChart"></canvas>
-                        </div>
-                    </div>
+                <!-- ========================================================================= -->
+                <!-- TAB 2: LIVE AI PREDICTOR WORKSPACE -->
+                <!-- ========================================================================= -->
+                <div id="tab-predict" class="tab-pane">
+                    <div class="predictor-layout">
+                        <!-- Left Column: Glass Input Form -->
+                        <div class="form-column">
+                            <form id="prediction-form">
+                                <!-- Card 1: Financial Profile -->
+                                <div class="glass-card form-section-card" style="margin-bottom: 24px;">
+                                    <div class="section-head">
+                                        <span class="material-symbols-outlined icon">payments</span>
+                                        <h4>Financial Profile & Liquidity</h4>
+                                    </div>
+                                    <div class="form-grid-2" style="margin-bottom: 18px;">
+                                        <div class="form-field">
+                                            <label for="applicant_income">Applicant Annual Income ($)</label>
+                                            <input type="number" id="applicant_income" min="0" value="50000" step="any" required>
+                                            <span class="field-hint">Primary applicant verified annual earnings</span>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="coapplicant_income">Co-Applicant Income ($)</label>
+                                            <input type="number" id="coapplicant_income" min="0" value="20000" step="any" required>
+                                            <span class="field-hint">Co-borrower annual income (0 if none)</span>
+                                        </div>
+                                    </div>
 
-                    <!-- Credit score brackets -->
-                    <div class="chart-card">
-                        <h3>📊 Approval Rate by Credit Bracket</h3>
-                        <p class="chart-subtitle">Creditworthiness categories and their historic approval success percentages.</p>
-                        <div class="chart-wrapper">
-                            <canvas id="creditBracketChart"></canvas>
-                        </div>
-                    </div>
+                                    <div class="form-grid-3">
+                                        <div class="form-field">
+                                            <label for="loan_amount">Requested Loan ($)</label>
+                                            <input type="number" id="loan_amount" min="0" value="25000" step="any" required>
+                                            <span class="field-hint">Principal loan amount</span>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="loan_term">Loan Term (Months)</label>
+                                            <select id="loan_term" required>
+                                                <option value="12">12 Months</option>
+                                                <option value="24">24 Months</option>
+                                                <option value="36">36 Months</option>
+                                                <option value="48">48 Months</option>
+                                                <option value="60">60 Months</option>
+                                                <option value="72">72 Months</option>
+                                                <option value="84" selected>84 Months</option>
+                                            </select>
+                                            <span class="field-hint">Repayment duration</span>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="savings">Current Savings ($)</label>
+                                            <input type="number" id="savings" min="0" value="10000" step="any" required>
+                                            <span class="field-hint">Emergency liquid savings</span>
+                                        </div>
+                                    </div>
 
-                    <!-- Purpose chart -->
-                    <div class="chart-card">
-                        <h3>💰 Loan Purpose Success Rates</h3>
-                        <p class="chart-subtitle">Comparison of approval probabilities across different loan objectives.</p>
-                        <div class="chart-wrapper">
-                            <canvas id="purposeChart"></canvas>
-                        </div>
-                    </div>
+                                    <div class="form-field" style="margin-top: 18px;">
+                                        <label for="collateral">Collateral Asset Value ($)</label>
+                                        <input type="number" id="collateral" min="0" value="30000" step="any" required>
+                                        <span class="field-hint">Estimated market value of pledged assets</span>
+                                    </div>
+                                </div>
 
-                    <!-- Property Area -->
-                    <div class="chart-card">
-                        <h3>🏡 Property Area Distribution</h3>
-                        <p class="chart-subtitle">Geographic profile of the loan applicants database.</p>
-                        <div class="chart-wrapper">
-                            <canvas id="propertyChart"></canvas>
+                                <!-- Card 2: Credit & Risk Parameters with Interactive Sliders -->
+                                <div class="glass-card form-section-card" style="margin-bottom: 24px;">
+                                    <div class="section-head">
+                                        <span class="material-symbols-outlined icon">speed</span>
+                                        <h4>Credit History & Risk Metrics</h4>
+                                    </div>
+
+                                    <!-- Credit Score Slider -->
+                                    <div class="slider-group">
+                                        <div class="slider-top-row">
+                                            <label class="slider-label" for="credit_score">Credit Score (FICO Equivalent)</label>
+                                            <span class="slider-display-badge" id="credit_score_val">700</span>
+                                        </div>
+                                        <input type="range" id="credit_score" min="300" max="850" value="700" step="1">
+                                        <div class="slider-scale-labels">
+                                            <span>300 (Poor)</span>
+                                            <span>550 (Fair)</span>
+                                            <span>650 (Good)</span>
+                                            <span>750+ (Excellent)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- DTI Ratio Slider -->
+                                    <div class="slider-group">
+                                        <div class="slider-top-row">
+                                            <label class="slider-label" for="dti_ratio">Debt-to-Income (DTI) Ratio</label>
+                                            <span class="slider-display-badge" id="dti_ratio_val">30%</span>
+                                        </div>
+                                        <input type="range" id="dti_ratio" min="0" max="1" value="0.30" step="0.01">
+                                        <div class="slider-scale-labels">
+                                            <span>0% (Optimal)</span>
+                                            <span>30% (Standard)</span>
+                                            <span>50% (Max Limit)</span>
+                                            <span>100% (High Risk)</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="existing_loans">Active Outstanding Loans</label>
+                                        <input type="number" id="existing_loans" min="0" max="10" value="1" required>
+                                        <span class="field-hint">Total number of open debt obligations</span>
+                                    </div>
+                                </div>
+
+                                <!-- Card 3: Applicant Demographics -->
+                                <div class="glass-card form-section-card" style="margin-bottom: 24px;">
+                                    <div class="section-head">
+                                        <span class="material-symbols-outlined icon">person</span>
+                                        <h4>Applicant Demographics & Background</h4>
+                                    </div>
+                                    <div class="form-grid-3" style="margin-bottom: 18px;">
+                                        <div class="form-field">
+                                            <label for="age">Age</label>
+                                            <input type="number" id="age" min="18" max="100" value="35" required>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="dependents">Dependents</label>
+                                            <input type="number" id="dependents" min="0" max="10" value="0" required>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="gender">Gender</label>
+                                            <select id="gender" required>
+                                                <option value="Male" selected>Male</option>
+                                                <option value="Female">Female</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-grid-3" style="margin-bottom: 18px;">
+                                        <div class="form-field">
+                                            <label for="marital_status">Marital Status</label>
+                                            <select id="marital_status" required>
+                                                <option value="Single" selected>Single</option>
+                                                <option value="Married">Married</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="education">Education</label>
+                                            <select id="education" required>
+                                                <option value="Graduate" selected>Graduate</option>
+                                                <option value="Not Graduate">Not Graduate</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="employment_status">Employment Status</label>
+                                            <select id="employment_status" required>
+                                                <option value="Salaried" selected>Salaried</option>
+                                                <option value="Self-employed">Self-employed</option>
+                                                <option value="Contract">Contract</option>
+                                                <option value="Unemployed">Unemployed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-grid-3">
+                                        <div class="form-field">
+                                            <label for="employer_category">Employer Category</label>
+                                            <select id="employer_category" required>
+                                                <option value="Private" selected>Private</option>
+                                                <option value="Government">Government</option>
+                                                <option value="MNC">MNC</option>
+                                                <option value="Business">Business</option>
+                                                <option value="Unemployed">Unemployed</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="property_area">Property Area</label>
+                                            <select id="property_area" required>
+                                                <option value="Rural">Rural</option>
+                                                <option value="Semiurban" selected>Semiurban</option>
+                                                <option value="Urban">Urban</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="loan_purpose">Loan Purpose</label>
+                                            <select id="loan_purpose" required>
+                                                <option value="Personal" selected>Personal</option>
+                                                <option value="Car">Car</option>
+                                                <option value="Education">Education</option>
+                                                <option value="Home">Home</option>
+                                                <option value="Business">Business</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Button -->
+                                <button type="submit" class="btn-execute" id="analyze-btn">
+                                    <span class="material-symbols-outlined">rocket_launch</span>
+                                    <span>EXECUTE AI UNDERWRITING ASSESSMENT</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Right Column: Decision & Explainability Panel -->
+                        <div class="result-column">
+                            <div class="glass-card decision-card" id="results-panel">
+                                <div class="decision-card-head">
+                                    <h4 style="font-size: 18px; font-weight: 700; color: #fff;">Underwriting Decision</h4>
+                                    <span class="badge-pill" style="font-size: 11px;">
+                                        <span class="material-symbols-outlined" style="font-size: 14px;">psychology</span> AI Inferred
+                                    </span>
+                                </div>
+
+                                <!-- Circular Probability Meter -->
+                                <div class="meter-container">
+                                    <div class="circle-meter">
+                                        <svg viewBox="0 0 160 160">
+                                            <circle class="meter-bg" cx="80" cy="80" r="65"></circle>
+                                            <circle class="meter-fill" id="meter-stroke" cx="80" cy="80" r="65"></circle>
+                                        </svg>
+                                        <div class="meter-text-wrap">
+                                            <div class="meter-percentage" id="meter-percent-val">--%</div>
+                                            <div class="meter-label">Approval Confidence</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status Decision Badge -->
+                                    <div class="decision-badge approved" id="decision-badge">
+                                        <span class="material-symbols-outlined" id="decision-icon">verified</span>
+                                        <span id="decision-text">Awaiting Execution</span>
+                                    </div>
+                                </div>
+
+                                <!-- Key Influencing Factors (SHAP Values) -->
+                                <div class="factors-section">
+                                    <div class="factors-title" id="factors-title-1">Key Influencing Drivers</div>
+                                    <ul class="factors-list" id="factors-list-1">
+                                        <li>
+                                            <span class="factor-name"><span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary-cyan);">analytics</span> Credit Score Impact</span>
+                                            <span class="factor-val pos">+24.0%</span>
+                                        </li>
+                                        <li>
+                                            <span class="factor-name"><span class="material-symbols-outlined" style="font-size: 16px; color: var(--secondary-emerald);">shield</span> Collateral Asset Ratio</span>
+                                            <span class="factor-val pos">+18.5%</span>
+                                        </li>
+                                        <li>
+                                            <span class="factor-name"><span class="material-symbols-outlined" style="font-size: 16px; color: var(--danger-rose);">trending_down</span> DTI Debt Burden</span>
+                                            <span class="factor-val neg">-6.2%</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Financial Capacity Chart -->
+                                <div style="margin-top: 24px;">
+                                    <div class="factors-title">Applicant Financial Balance</div>
+                                    <div style="height: 180px; width: 100%; position: relative;">
+                                        <canvas id="financialSummaryChart"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- Health Summary Box -->
+                                <div class="summary-box">
+                                    <h5 id="factors-title-2">Executive Underwriter Summary</h5>
+                                    <p id="underwriter-narrative">Execute the AI prediction model above to generate a comprehensive underwriting assessment, credit risk ranking, and factor breakdown.</p>
+                                    <ul class="factors-list" id="factors-list-2" style="margin-top: 10px;"></ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tab Content 2: Predict Loan Approval -->
-            <div id="predict-tab" class="tab-content">
-                <form id="prediction-form" class="prediction-form-card">
-                    <!-- Form Row 1: Financial Profile -->
-                    <div class="form-section">
-                        <h3 class="section-title">💰 Financial Profile</h3>
-                        <div class="form-row col-3">
-                            <div class="form-group">
-                                <label for="applicant_income">Applicant Annual Income ($)</label>
-                                <input type="number" id="applicant_income" min="0" value="50000" step="1000" required>
-                                <span class="help-text">Annual income of the primary applicant</span>
+                <!-- ========================================================================= -->
+                <!-- TAB 3: PORTFOLIO ANALYTICS -->
+                <!-- ========================================================================= -->
+                <div id="tab-portfolio" class="tab-pane">
+                    <div class="glass-card" style="padding: 32px; margin-bottom: 24px;">
+                        <h3 class="chart-card-title" style="margin-bottom: 8px;">Macro Portfolio Exposure & Risk Segments</h3>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">Risk-adjusted portfolio segmentation across loan tenures, credit rating distributions, and asset tiers.</p>
+                        
+                        <div class="kpi-grid" style="margin-bottom: 28px;">
+                            <div class="glass-card kpi-card" style="background: rgba(7, 16, 30, 0.5);">
+                                <div class="kpi-title">Prime Tier (A+)</div>
+                                <div class="kpi-value cyan">62.4%</div>
+                                <span class="kpi-badge positive">Expected Loss &lt; 0.5%</span>
                             </div>
-                            <div class="form-group">
-                                <label for="coapplicant_income">Co-applicant Income ($)</label>
-                                <input type="number" id="coapplicant_income" min="0" value="20000" step="1000" required>
-                                <span class="help-text">Annual income of co-applicant (0 if none)</span>
+                            <div class="glass-card kpi-card" style="background: rgba(7, 16, 30, 0.5);">
+                                <div class="kpi-title">Standard Tier (B)</div>
+                                <div class="kpi-value emerald">28.1%</div>
+                                <span class="kpi-badge neutral">Expected Loss 1.8%</span>
                             </div>
-                            <div class="form-group">
-                                <label for="loan_amount">Requested Loan Amount ($)</label>
-                                <input type="number" id="loan_amount" min="500" value="150000" step="5000" required>
-                                <span class="help-text">Requested principal loan amount</span>
+                            <div class="glass-card kpi-card" style="background: rgba(7, 16, 30, 0.5);">
+                                <div class="kpi-title">Subprime / High Risk</div>
+                                <div class="kpi-value rose">9.5%</div>
+                                <span class="kpi-badge alert">Requires Co-Signer</span>
+                            </div>
+                            <div class="glass-card kpi-card" style="background: rgba(7, 16, 30, 0.5);">
+                                <div class="kpi-title">Avg Loan Duration</div>
+                                <div class="kpi-value amber">48 Mo</div>
+                                <span class="kpi-badge neutral">Weighted Tenure</span>
                             </div>
                         </div>
 
-                        <div class="form-row col-3">
-                            <div class="form-group">
-                                <label for="loan_term">Loan Term (Months)</label>
-                                <select id="loan_term" required>
-                                    <option value="12">12 Months</option>
-                                    <option value="24">24 Months</option>
-                                    <option value="36">36 Months</option>
-                                    <option value="48">48 Months</option>
-                                    <option value="60">60 Months</option>
-                                    <option value="72">72 Months</option>
-                                    <option value="84" selected>84 Months</option>
-                                </select>
-                                <span class="help-text">Repayment duration</span>
+                        <div style="background: rgba(16, 30, 54, 0.4); border-radius: var(--radius-md); padding: 20px; border: 1px solid var(--border-subtle);">
+                            <h4 style="font-size: 15px; color: #fff; margin-bottom: 8px;">Automated Risk Guardrails</h4>
+                            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                                Applications with DTI &gt; 50% or Credit Score &lt; 580 are automatically directed into secondary manual review queues. All model weights are recalibrated using cross-validated logistic loss with L2 regularization.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================================= -->
+                <!-- TAB 4: MODEL EXPLAINER & METRICS -->
+                <!-- ========================================================================= -->
+                <div id="tab-explainer" class="tab-pane">
+                    <div class="glass-card" style="padding: 32px;">
+                        <h3 class="chart-card-title" style="margin-bottom: 8px;">Model Architecture & Performance Benchmark</h3>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">Underwriting engine specifications, validation metrics, and feature sensitivity weights.</p>
+                        
+                        <div class="matrix-grid">
+                            <div class="matrix-item">
+                                <div class="score">85.4%</div>
+                                <div class="desc">Test Set Accuracy</div>
                             </div>
-                            <div class="form-group">
-                                <label for="savings">Current Savings ($)</label>
-                                <input type="number" id="savings" min="0" value="10000" step="500" required>
-                                <span class="help-text">Liquid savings or emergency funds</span>
+                            <div class="matrix-item">
+                                <div class="score" style="color: var(--secondary-emerald);">84.2%</div>
+                                <div class="desc">Precision (Approved)</div>
                             </div>
-                            <div class="form-group">
-                                <label for="collateral">Collateral Value ($)</label>
-                                <input type="number" id="collateral" min="0" value="50000" step="1000" required>
-                                <span class="help-text">Estimated value of pledged assets</span>
+                            <div class="matrix-item">
+                                <div class="score" style="color: var(--accent-indigo);">87.1%</div>
+                                <div class="desc">Recall (Sensitivity)</div>
+                            </div>
+                            <div class="matrix-item">
+                                <div class="score" style="color: var(--primary-cyan);">0.912</div>
+                                <div class="desc">ROC-AUC Score</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 32px;">
+                            <h4 style="font-size: 16px; color: #fff; margin-bottom: 16px;">Top Algorithmic Feature Coefficients</h4>
+                            <div class="table-responsive">
+                                <table class="stream-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Feature Name</th>
+                                            <th>Sensitivity Direction</th>
+                                            <th>Relative Importance</th>
+                                            <th>Regulatory Compliance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Credit Score (Squared)</strong></td>
+                                            <td><span class="status-tag approved">+ Positive Impact</span></td>
+                                            <td>34.2% Weight</td>
+                                            <td>FCRA Compliant</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Debt-to-Income (Squared)</strong></td>
+                                            <td><span class="status-tag rejected">- Negative Impact</span></td>
+                                            <td>26.8% Weight</td>
+                                            <td>ECOA Verified</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Collateral Value</strong></td>
+                                            <td><span class="status-tag approved">+ Positive Impact</span></td>
+                                            <td>18.4% Weight</td>
+                                            <td>Asset-Backed</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Applicant Income</strong></td>
+                                            <td><span class="status-tag approved">+ Positive Impact</span></td>
+                                            <td>12.5% Weight</td>
+                                            <td>Income Verified</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Current Savings</strong></td>
+                                            <td><span class="status-tag approved">+ Positive Impact</span></td>
+                                            <td>8.1% Weight</td>
+                                            <td>Liquidity Check</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Form Row 2: Credit & Risk Profile -->
-                    <div class="form-section">
-                        <h3 class="section-title">📊 Credit & Risk Profile</h3>
-                        <div class="form-row col-3">
-                            <div class="form-group span-slider">
-                                <div class="slider-label-row">
-                                    <label for="credit_score">Credit Score</label>
-                                    <span class="slider-val" id="credit_score_val">700</span>
-                                </div>
-                                <input type="range" id="credit_score" min="300" max="850" value="700" step="1">
-                                <div class="slider-ticks">
-                                    <span>300 (Poor)</span>
-                                    <span>550 (Fair)</span>
-                                    <span>650 (Good)</span>
-                                    <span>750+ (Excellent)</span>
-                                </div>
-                            </div>
-
-                            <div class="form-group span-slider">
-                                <div class="slider-label-row">
-                                    <label for="dti_ratio">Debt-to-Income (DTI) Ratio</label>
-                                    <span class="slider-val" id="dti_ratio_val">30%</span>
-                                </div>
-                                <input type="range" id="dti_ratio" min="0" max="1" value="0.30" step="0.01">
-                                <div class="slider-ticks">
-                                    <span>0% (Excellent)</span>
-                                    <span>30% (Ideal)</span>
-                                    <span>50% (Limit)</span>
-                                    <span>100% (High)</span>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="existing_loans">Existing Active Loans</label>
-                                <input type="number" id="existing_loans" min="0" max="10" value="1" required>
-                                <span class="help-text">Number of currently outstanding loans</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Form Row 3: Personal & Employment Profile -->
-                    <div class="form-section">
-                        <h3 class="section-title">👤 Applicant Details</h3>
-                        <div class="form-row col-3">
-                            <div class="form-group">
-                                <label for="age">Age</label>
-                                <input type="number" id="age" min="18" max="100" value="35" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="dependents">Dependents</label>
-                                <input type="number" id="dependents" min="0" max="10" value="0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="gender">Gender</label>
-                                <select id="gender" required>
-                                    <option value="Male" selected>Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-row col-3">
-                            <div class="form-group">
-                                <label for="marital_status">Marital Status</label>
-                                <select id="marital_status" required>
-                                    <option value="Single" selected>Single</option>
-                                    <option value="Married">Married</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="education">Education</label>
-                                <select id="education" required>
-                                    <option value="Graduate" selected>Graduate</option>
-                                    <option value="Not Graduate">Not Graduate</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="employment_status">Employment Status</label>
-                                <select id="employment_status" required>
-                                    <option value="Salaried" selected>Salaried</option>
-                                    <option value="Self-employed">Self-employed</option>
-                                    <option value="Contract">Contract</option>
-                                    <option value="Unemployed">Unemployed</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-row col-3">
-                            <div class="form-group">
-                                <label for="employer_category">Employer Category</label>
-                                <select id="employer_category" required>
-                                    <option value="Private" selected>Private</option>
-                                    <option value="Government">Government</option>
-                                    <option value="MNC">MNC</option>
-                                    <option value="Business">Business</option>
-                                    <option value="Unemployed">Unemployed</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="property_area">Property Area</label>
-                                <select id="property_area" required>
-                                    <option value="Rural">Rural</option>
-                                    <option value="Semiurban" selected>Semiurban</option>
-                                    <option value="Urban">Urban</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="loan_purpose">Loan Purpose</label>
-                                <select id="loan_purpose" required>
-                                    <option value="Personal" selected>Personal</option>
-                                    <option value="Car">Car</option>
-                                    <option value="Education">Education</option>
-                                    <option value="Home">Home</option>
-                                    <option value="Business">Business</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Submit action -->
-                    <div class="form-actions">
-                        <button type="submit" class="submit-btn" id="analyze-btn">
-                            🚀 ANALYZE LOAN APPLICATION
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Dynamic Prediction Results Panel -->
-                <section id="results-section" class="results-section hidden">
-                    <hr class="results-divider">
-                    <h2 class="results-heading">📊 Assessment Results</h2>
-                    
-                    <!-- Result Status Banner -->
-                    <div id="result-status-banner" class="status-banner">
-                        <h2 id="result-status-title">LOAN STATUS</h2>
-                        <p id="result-status-desc">Assessment description text goes here.</p>
-                    </div>
-
-                    <!-- Metric Cards row -->
-                    <div class="results-metric-grid">
-                        <div class="res-metric-card">
-                            <span class="res-metric-label">Approval Probability</span>
-                            <h3 class="res-metric-value text-primary" id="res-prob">-%</h3>
-                        </div>
-                        <div class="res-metric-card">
-                            <span class="res-metric-label">Risk Level</span>
-                            <h3 class="res-metric-value" id="res-risk">-</h3>
-                        </div>
-                        <div class="res-metric-card">
-                            <span class="res-metric-label">Credit Score</span>
-                            <h3 class="res-metric-value text-primary" id="res-credit">-</h3>
-                        </div>
-                        <div class="res-metric-card">
-                            <span class="res-metric-label">DTI Ratio</span>
-                            <h3 class="res-metric-value text-primary" id="res-dti">-%</h3>
-                        </div>
-                    </div>
-
-                    <div class="results-details-grid">
-                        <!-- Left column: gauge and metrics charts -->
-                        <div class="details-left">
-                            <div class="chart-card">
-                                <h3>Approval Probability Gauge</h3>
-                                <div class="gauge-container">
-                                    <canvas id="gaugeChart"></canvas>
-                                    <div class="gauge-value-overlay" id="gauge-overlay-text">-%</div>
-                                </div>
-                            </div>
-                            
-                            <div class="chart-card">
-                                <h3>📈 Applicant Financial Overview</h3>
-                                <div class="chart-wrapper">
-                                    <canvas id="financialSummaryChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right column: decision analysis checklists -->
-                        <div class="details-right">
-                            <div class="decision-card">
-                                <h3>💡 Decision Intelligence Analysis</h3>
-                                <div class="factors-section">
-                                    <h4 id="factors-title-1" class="factor-header">✅ Positive Factors</h4>
-                                    <ul id="factors-list-1" class="factor-list">
-                                        <!-- Javascript generated -->
-                                    </ul>
-                                </div>
-
-                                <div class="factors-section">
-                                    <h4 id="factors-title-2" class="factor-header">⚠️ Risk Considerations</h4>
-                                    <ul id="factors-list-2" class="factor-list">
-                                        <!-- Javascript generated -->
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
+                </div>
+            </main>
+        </div>
     </div>
 
-    <!-- Data script generated by serialization -->
+    <!-- Data and Application Script -->
     <script src="data.js"></script>
-    <!-- Application Logic script -->
     <script src="app.js"></script>
 </body>
 </html>
